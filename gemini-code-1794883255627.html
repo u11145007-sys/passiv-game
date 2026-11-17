@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>被動語態奪寶大對決（高低分組完整版）</title>
+<style>
+  :root {
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --low-primary: #10b981;
+    --low-dark: #059669;
+    --low-bg: #ecfdf5;
+    --high-primary: #ef4444;
+    --high-dark: #dc2626;
+    --high-bg: #fef2f2;
+    --accent: #f59e0b;
+    --info: #3b82f6;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s;
+  }
+
+  body.mode-low { background-color: var(--low-bg); }
+  body.mode-high { background-color: var(--high-bg); }
+
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .top-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.18);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.05rem;
+  }
+
+  .cheat-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  /* Group Switcher */
+  .group-switcher {
+    display: flex;
+    gap: 14px;
+    margin: 20px 0 10px 0;
+    background: white;
+    padding: 8px;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .group-btn {
+    padding: 12px 24px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .group-btn.active-low {
+    background: var(--low-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  }
+
+  .group-btn.active-high {
+    background: var(--high-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+  }
+
+  /* Stage Tabs */
+  .nav-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    background: white;
+    color: var(--text-main);
+    transition: all 0.2s;
+  }
+
+  body.mode-low .tab-btn.active {
+    background: var(--low-primary);
+    color: white;
+    border-color: var(--low-primary);
+  }
+
+  body.mode-high .tab-btn.active {
+    background: var(--high-primary);
+    color: white;
+    border-color: var(--high-primary);
+  }
+
+  .container {
+    width: 95%;
+    max-width: 860px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+  }
+
+  .stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dashed #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stage-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  .progress-pill {
+    background: #f1f5f9;
+    padding: 5px 14px;
+    border-radius: 12px;
+    font-weight: bold;
+  }
+
+  .question-box {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  .q-hint-tag {
+    display: inline-block;
+    background: #fef3c7;
+    color: #b45309;
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+
+  .q-sentence {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+
+  .q-zh {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+  }
+
+  /* Low Stage 1 Buttons */
+  .s1-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .choice-card {
+    padding: 22px 16px;
+    border-radius: 16px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s;
+    text-align: center;
+  }
+  .choice-card:hover { transform: translateY(-3px); }
+  .btn-ok { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; }
+  .btn-bad { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+
+  /* MCQ Grid */
+  .mcq-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .mcq-btn {
+    padding: 18px 12px;
+    font-size: 1.35rem;
+    font-weight: bold;
+    background: white;
+    border: 3px solid #cbd5e1;
+    border-radius: 14px;
+    cursor: pointer;
+    color: #1e293b;
+    transition: all 0.15s;
+  }
+  .mcq-btn:hover {
+    border-color: var(--info);
+    background: #eff6ff;
+    transform: translateY(-2px);
+  }
+
+  /* High Stage 1 Unjumble */
+  .drop-zone {
+    min-height: 74px;
+    background: #f8fafc;
+    border: 2px dashed #94a3b8;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 16px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    min-height: 74px;
+  }
+
+  .word-chip {
+    padding: 10px 18px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: white;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .word-chip.in-slot {
+    background: var(--high-primary);
+    color: white;
+    border-color: var(--high-dark);
+  }
+
+  /* High Stage 2 Fill-in-the-blank */
+  .fill-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .fill-input {
+    width: 80%;
+    max-width: 400px;
+    padding: 14px 18px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+    border: 3px solid #cbd5e1;
+    border-radius: 12px;
+    outline: none;
+  }
+  .fill-input:focus {
+    border-color: var(--high-primary);
+  }
+
+  .action-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .btn-submit {
+    padding: 12px 28px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  .btn-clear {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #e2e8f0;
+    color: #334155;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  .feedback-box {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.correct {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #34d399;
+    display: block;
+  }
+  .feedback-box.wrong {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #f87171;
+    display: block;
+  }
+
+  .next-btn {
+    margin-top: 16px;
+    width: 100%;
+    padding: 14px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: var(--info);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: none;
+  }
+
+  /* Treasure Chest Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.75);
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+  }
+  .modal-card {
+    background: white;
+    padding: 26px;
+    border-radius: 20px;
+    max-width: 560px;
+    width: 92%;
+    text-align: center;
+    animation: popIn 0.3s ease;
+  }
+  .chests {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .chest {
+    background: linear-gradient(145deg, #fef3c7, #fde68a);
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+    padding: 22px 10px;
+    font-size: 2.6rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .chest:hover { transform: scale(1.07); }
+  .chest-label { font-size: 1rem; font-weight: bold; color: #92400e; margin-top: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+  th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: center; }
+  th { background: #f1f5f9; }
+
+  @keyframes popIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body class="mode-low">
+
+<header>
+  <h1>🏴‍☠️ 被動語態奪寶大對決</h1>
+  <div class="top-controls">
+    <button class="cheat-btn" onclick="toggleCheat(true)">📖 隨身文法小抄</button>
+    <div class="badge">💰 金幣: <span id="gold">0</span></div>
+  </div>
+</header>
+
+<!-- 高低分組切換器 -->
+<div class="group-switcher">
+  <button class="group-btn active-low" id="grp-low" onclick="switchGroup('low')">🟢 低組（基礎闖關）</button>
+  <button class="group-btn" id="grp-high" onclick="switchGroup('high')">🔴 高組（進階挑戰）</button>
+</div>
+
+<!-- 關卡選單 -->
+<div class="nav-tabs" id="stage-tabs"></div>
+
+<div class="container">
+  <div class="stage-header">
+    <div class="stage-title" id="stage-title">關卡標題</div>
+    <div class="progress-pill" id="progress-pill">第 1 / 5 題</div>
+  </div>
+
+  <div class="question-box">
+    <div class="q-hint-tag" id="q-tag">提示標籤</div>
+    <div class="q-sentence" id="q-sentence">題目內容</div>
+    <div class="q-zh" id="q-zh">中文說明</div>
+  </div>
+
+  <!-- 動態作答區 -->
+  <div id="interactive-area"></div>
+
+  <div class="feedback-box" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQ()">下一題 ➡️</button>
+</div>
+
+<!-- 隨機開寶箱彈窗 -->
+<div class="modal" id="chestModal">
+  <div class="modal-card">
+    <h2 style="margin-top:0; color:#b45309;">🎉 答對啦！選一個寶箱抽金幣！</h2>
+    <p style="color:#475569;">試試手氣！可能抽中大獎或「金幣翻倍」喔！</p>
+    <div class="chests">
+      <div class="chest" onclick="openChest(0)">🎁<div class="chest-label">1號寶箱</div></div>
+      <div class="chest" onclick="openChest(1)">🎁<div class="chest-label">2號寶箱</div></div>
+      <div class="chest" onclick="openChest(2)">🎁<div class="chest-label">3號寶箱</div></div>
+    </div>
+    <div id="chest-result" style="font-size:1.3rem; font-weight:bold; color:#065f46; min-height:32px;"></div>
+    <button class="next-btn" id="close-chest-btn" onclick="closeChest()" style="margin-top:16px;">收下金幣，繼續闖關！</button>
+  </div>
+</div>
+
+<!-- 小抄彈窗 -->
+<div class="modal" id="cheatModal" onclick="toggleCheat(false)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h2 style="margin-top:0;">📖 被動語態隨身小抄卡</h2>
+    <div style="background:#eff6ff; padding:10px; border-radius:8px; font-weight:bold; color:#1d4ed8; margin-bottom:10px;">
+      核心公式：新主詞 + be動詞 + 過去分詞(p.p.) + (by + 受詞)
+    </div>
+    <table>
+      <tr><th>時態</th><th>單數 (I / He / She / It)</th><th>複數 (You / We / They)</th></tr>
+      <tr><td><b>現在式</b></td><td>I <b>am</b> / 單數 <b>is</b></td><td><b>are</b></td></tr>
+      <tr><td><b>過去式</b></td><td><b>was</b></td><td><b>were</b></td></tr>
+      <tr><td><b>有助動詞</b></td><td colspan="2">must / can / should / will + <b>be</b> (原形)</td></tr>
+    </table>
+    <table>
+      <tr><th>原形</th><th>過去分詞 (p.p.)</th><th>原形</th><th>過去分詞 (p.p.)</th></tr>
+      <tr><td>steal (偷)</td><td><b>stolen</b></td><td>bite (咬)</td><td><b>bitten</b></td></tr>
+      <tr><td>break (打破)</td><td><b>broken</b></td><td>eat (吃)</td><td><b>eaten</b></td></tr>
+      <tr><td>speak (說)</td><td><b>spoken</b></td><td>see (看見)</td><td><b>seen</b></td></tr>
+      <tr><td>give (給/出題)</td><td><b>given</b></td><td>finish / clean</td><td><b>finished / cleaned</b></td></tr>
+    </table>
+    <button class="next-btn" style="display:block; margin-top:14px;" onclick="toggleCheat(false)">關閉小抄</button>
+  </div>
+</div>
+
+<script>
+  let gold = 0;
+  let currentGroup = 'low';
+  let currentStage = 1;
+  let qIdx = 0;
+  let answeredCurrent = false;
+
+  const curriculum = {
+    low: {
+      stages: [
+        { id: 1, name: "關卡 1：會不會自己動？", title: "🟢 低組關卡 1：會不會自己動？（語意判斷）" },
+        { id: 2, name: "關卡 2：Be 動詞連連看", title: "🟢 低組關卡 2：Be 動詞連連看（時態搭配 P.7）" },
+        { id: 3, name: "關卡 3：助動詞後面放什麼？", title: "🟢 低組關卡 3：助動詞後面放什麼？（P.9-10）" }
+      ],
+      questions: {
+        1: [
+          {
+            tag: "觀察主詞「The bike」會不會自己動？",
+            sentence: "The bike stole yesterday.",
+            zh: "（腳踏車昨天偷了東西？）",
+            isReasonable: false,
+            explain: "腳踏車不會自己偷東西！它是「被偷」，所以要用被動語態：My bike <b>was stolen</b> yesterday."
+          },
+          {
+            tag: "觀察主詞「The window」會不會自己動？",
+            sentence: "The window broke by Tom.",
+            zh: "（窗戶自己打破了湯姆？）",
+            isReasonable: false,
+            explain: "窗戶不會自己打破，而且後面有 by Tom（被湯姆），所以要用被動語態：The window <b>was broken</b> by Tom."
+          },
+          {
+            tag: "觀察主詞「A dog」會不會自己做動作？",
+            sentence: "A dog bit the poor boy.",
+            zh: "（一隻狗咬了那個可憐的男孩。）",
+            isReasonable: true,
+            explain: "答對了！狗狗真的會咬人，所以這句用「主動語態」完全合理！"
+          },
+          {
+            tag: "觀察主詞「The homework」會不會自己動？",
+            sentence: "The homework must finish today.",
+            zh: "（功課今天必須自己完成自己？）",
+            isReasonable: false,
+            explain: "書不會自己寫自己，功課也不會自己完成！必須用被動：The homework must <b>be finished</b> today."
+          }
+        ],
+        2: [
+          {
+            tag: "提示：yesterday（昨天 → 過去式）＋ 單數 My bike",
+            sentence: "My bike ______ stolen yesterday.",
+            zh: "（我的腳踏車昨天被偷了。）",
+            options: ["(A) is", "(B) was", "(C) were"],
+            correctIdx: 1,
+            explain: "看到 yesterday 要選過去式，My bike 只有一台（單數），所以選 <b>(B) was</b>！"
+          },
+          {
+            tag: "提示：複數主詞 Robots ＋ 事實喜好（現在式）",
+            sentence: "Robots ______ liked by him.",
+            zh: "（機器人被他喜歡。）",
+            options: ["(A) am", "(B) is", "(C) are"],
+            correctIdx: 2,
+            explain: "Robots 字尾有 s 是複數，現在式複數要搭配 <b>(C) are</b>！"
+          },
+          {
+            tag: "提示：事實真理（現在式）＋ 單數語言 English",
+            sentence: "English ______ spoken in the USA.",
+            zh: "（美國講英文 / 英文在美國被說。）",
+            options: ["(A) is", "(B) are", "(C) were"],
+            correctIdx: 0,
+            explain: "「美國講英文」是現在的事實，English 是單數，所以選 <b>(A) is</b>！"
+          }
+        ],
+        3: [
+          {
+            tag: "口訣：助動詞 must 後面一定要接「原形」！",
+            sentence: "The homework must ______ finished today.",
+            zh: "（功課今天必須被完成。）",
+            options: ["(A) is", "(B) be", "(C) was"],
+            correctIdx: 1,
+            explain: "must 是助動詞老大，後面只能接原形動詞 <b>(B) be</b>，不能變 is 或 was！"
+          },
+          {
+            tag: "口訣：助動詞 can 後面一定要接「原形」！",
+            sentence: "Many stars can ______ seen at night.",
+            zh: "（許多星星在晚上可以被看見。）",
+            options: ["(A) be", "(B) are", "(C) were"],
+            correctIdx: 0,
+            explain: "雖然 stars 是複數，但前面有助動詞 can，後面一律變回原形 <b>(A) be</b>！"
+          },
+          {
+            tag: "口訣：助動詞 should 後面一定要接「原形」！",
+            sentence: "The classroom should ______ cleaned every day.",
+            zh: "（教室每天應該被打掃。）",
+            options: ["(A) is", "(B) was", "(C) be"],
+            correctIdx: 2,
+            explain: "助動詞 should 後面要接原形 <b>(C) be</b>，構成 should be cleaned！"
+          }
+        ]
+      }
+    },
+    high: {
+      stages: [
+        { id: 1, name: "關卡 1：文法拼圖（句子重組）", title: "🔴 高組關卡 1：文法拼圖（句子重組 P.6, P.8, P.9）" },
+        { id: 2, name: "關卡 2：主動變被動大作戰", title: "🔴 高組關卡 2：主動變被動大作戰（克漏字改寫 P.4, P.11-12）" },
+        { id: 3, name: "關卡 3：大家來找碴（綜合除錯）", title: "🔴 高組關卡 3：大家來找碴（找出文法錯誤並改正）" }
+      ],
+      questions: {
+        1: [
+          {
+            tag: "公式：新主詞 + 否定beV(wasn't) + p.p. + by受詞 + 時間",
+            sentence: "那顆蘋果昨天沒有被湯姆吃掉。",
+            zh: "點擊下方單字塊，依序組裝成正確的英文被動句：",
+            chips: ["wasn't", "The apple", "yesterday.", "eaten", "by Tom"],
+            answer: ["The apple", "wasn't", "eaten", "by Tom", "yesterday."],
+            orderHint: "順序：新主詞 (The apple) → 否定beV (wasn't) → 過去分詞 (eaten) → by Tom → 時間 (yesterday.)"
+          },
+          {
+            tag: "公式：新主詞 + 助動詞(should) + 原形(be) + p.p. + 時間",
+            sentence: "教室每天應該被打掃。",
+            zh: "點擊下方單字塊，依序組裝成正確的英文被動句：",
+            chips: ["should", "The classroom", "every day.", "cleaned", "be"],
+            answer: ["The classroom", "should", "be", "cleaned", "every day."],
+            orderHint: "順序：新主詞 (The classroom) → 助動詞 (should) → 原形 (be) → 過去分詞 (cleaned) → 時間 (every day.)"
+          },
+          {
+            tag: "公式：新主詞 + 助動詞(will) + 原形(be) + p.p. + 時間",
+            sentence: "明天將會舉行一次測驗。",
+            zh: "點擊下方單字塊，依序組裝成正確的英文被動句：",
+            chips: ["given", "will", "A test", "tomorrow.", "be"],
+            answer: ["A test", "will", "be", "given", "tomorrow."],
+            orderHint: "順序：新主詞 (A test) → 助動詞 (will) → 原形 (be) → 過去分詞 (given) → 時間 (tomorrow.)"
+          }
+        ],
+        2: [
+          {
+            tag: "主動：A dog bit the poor boy.（注意過去式與 bite 的 p.p.）",
+            sentence: "The poor boy ____________ by a dog.",
+            zh: "請輸入空格缺少的 2 個英文單字（中間空一格）：",
+            accept: ["was bitten"],
+            hint: "bit 是過去式，單數主詞要用 was；bite 的過去分詞是 bitten（兩個 t）！"
+          },
+          {
+            tag: "主動：Tom didn't eat the apple.（注意過去式否定與 eat 的 p.p.）",
+            sentence: "The apple ____________ by Tom.",
+            zh: "請輸入空格缺少的 2 個英文單字（可用縮寫 wasn't 或 was not）：",
+            accept: ["wasn't eaten", "was not eaten"],
+            hint: "被動否定不能用 didn't，要用 wasn't；eat 的過去分詞是 eaten！"
+          },
+          {
+            tag: "主動：We can see many stars.（注意助動詞後接原形 be 與 see 的 p.p.）",
+            sentence: "Many stars ____________ at night.",
+            zh: "請輸入空格缺少的 3 個英文單字（中間各空一格）：",
+            accept: ["can be seen"],
+            hint: "助動詞 can + 原形 be + see 的過去分詞 seen（共三個字：can be seen）！"
+          }
+        ],
+        3: [
+          {
+            tag: "除錯任務：找出句子中的文法錯誤並選出正確改法！",
+            sentence: "❌ The homework must is finished today.",
+            zh: "這句話哪裡錯了？應該怎麼改才正確？",
+            options: [
+              "(A) must 改成 was",
+              "(B) is 改成 be",
+              "(C) finished 改成 finish"
+            ],
+            correctIdx: 1,
+            explain: "助動詞 must 後面一定要接原形動詞 <b>be</b>，絕對不能用 is！所以選 <b>(B) is 改成 be</b>。"
+          },
+          {
+            tag: "除錯任務：找出句子中的文法錯誤並選出正確改法！",
+            sentence: "❌ The poor boy bitten by a dog.",
+            zh: "這句話少了什麼關鍵零件？應該怎麼改？",
+            options: [
+              "(A) bitten 改成 was bitten",
+              "(B) bitten 改成 bit",
+              "(C) by 改成 with"
+            ],
+            correctIdx: 0,
+            explain: "被動語態一定要有「be動詞 + p.p.」，這句漏掉了過去式 be 動詞 was！所以選 <b>(A) bitten 改成 was bitten</b>。"
+          },
+          {
+            tag: "除錯任務：找出句子中的文法錯誤並選出正確改法！",
+            sentence: "❌ The apple didn't eaten by Tom yesterday.",
+            zh: "被動語態的否定句不能用 didn't，應該怎麼改？",
+            options: [
+              "(A) didn't 改成 wasn't",
+              "(B) eaten 改成 ate",
+              "(C) didn't 改成 weren't"
+            ],
+            correctIdx: 0,
+            explain: "被動語態否定要在 be 動詞後面加 not，The apple 是單數過去式，所以選 <b>(A) didn't 改成 wasn't</b>。"
+          }
+        ]
+      }
+    }
+  };
+
+  function toggleCheat(show) {
+    document.getElementById('cheatModal').style.display = show ? 'flex' : 'none';
+  }
+
+  function switchGroup(grp) {
+    currentGroup = grp;
+    currentStage = 1;
+    qIdx = 0;
+    document.body.className = `mode-${grp}`;
+    document.getElementById('grp-low').className = grp === 'low' ? 'group-btn active-low' : 'group-btn';
+    document.getElementById('grp-high').className = grp === 'high' ? 'group-btn active-high' : 'group-btn';
+    renderTabs();
+    renderQuestion();
+  }
+
+  function switchStage(stg) {
+    currentStage = stg;
+    qIdx = 0;
+    renderTabs();
+    renderQuestion();
+  }
+
+  function renderTabs() {
+    const container = document.getElementById('stage-tabs');
+    container.innerHTML = '';
+    curriculum[currentGroup].stages.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = `tab-btn ${s.id === currentStage ? 'active' : ''}`;
+      btn.innerText = s.name;
+      btn.onclick = () => switchStage(s.id);
+      container.appendChild(btn);
+    });
+  }
+
+  function shuffle(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function renderQuestion() {
+    answeredCurrent = false;
+    const fb = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const area = document.getElementById('interactive-area');
+    fb.className = 'feedback-box';
+    fb.style.display = '';
+    nextBtn.style.display = 'none';
+    area.innerHTML = '';
+
+    const stageObj = curriculum[currentGroup].stages.find(s => s.id === currentStage);
+    document.getElementById('stage-title').innerText = stageObj.title;
+
+    const list = curriculum[currentGroup].questions[currentStage];
+    if (qIdx >= list.length) {
+      document.getElementById('progress-pill').innerText = "本關完成！";
+      document.getElementById('q-tag').innerText = "🎉 太神啦！";
+      document.getElementById('q-sentence').innerText = "本關卡挑戰全部通關！";
+      document.getElementById('q-zh').innerText = "請點擊上方頁籤切換其他關卡或組別繼續賺金幣！";
+      return;
+    }
+
+    const q = list[qIdx];
+    document.getElementById('progress-pill').innerText = `第 ${qIdx + 1} / ${list.length} 題`;
+    document.getElementById('q-tag').innerText = `💡 ${q.tag}`;
+    document.getElementById('q-sentence').innerText = q.sentence;
+    document.getElementById('q-zh').innerText = q.zh;
+
+    // 依據組別與關卡渲染互動介面
+    if (currentGroup === 'low') {
+      if (currentStage === 1) {
+        area.innerHTML = `
+          <div class="s1-choices">
+            <button class="choice-card btn-ok" onclick="checkLowS1(true)">⭕ 合理<br><small style="font-weight:normal;">主詞會自己做這個動作</small></button>
+            <button class="choice-card btn-bad" onclick="checkLowS1(false)">❌ 不合理（要用被動！）<br><small style="font-weight:normal;">物品不會自己動，需要 be + p.p.</small></button>
+          </div>`;
+      } else {
+        renderMCQ(q.options);
+      }
+    } else {
+      // High group
+      if (currentStage === 1) {
+        area.innerHTML = `
+          <div class="drop-zone" id="h1-drop"></div>
+          <div class="word-bank" id="h1-bank"></div>
+          <div class="action-row">
+            <button class="btn-clear" onclick="renderQuestion()">🔄 清除重排</button>
+            <button class="btn-submit" onclick="checkHighS1()">✅ 檢查拼圖</button>
+          </div>`;
+        const shuffled = shuffle(q.chips);
+        const bank = document.getElementById('h1-bank');
+        const drop = document.getElementById('h1-drop');
+        shuffled.forEach(word => {
+          const chip = document.createElement('div');
+          chip.className = 'word-chip';
+          chip.innerText = word;
+          chip.onclick = () => {
+            if (chip.parentElement === bank) {
+              chip.classList.add('in-slot');
+              drop.appendChild(chip);
+            } else {
+              chip.classList.remove('in-slot');
+              bank.appendChild(chip);
+            }
+          };
+          bank.appendChild(chip);
+        });
+      } else if (currentStage === 2) {
+        area.innerHTML = `
+          <div class="fill-box">
+            <input type="text" class="fill-input" id="h2-input" placeholder="請在此輸入英文答案..." autocomplete="off">
+            <button class="btn-submit" onclick="checkHighS2()">✅ 送出答案</button>
+          </div>`;
+        document.getElementById('h2-input').addEventListener('keypress', e => {
+          if (e.key === 'Enter') checkHighS2();
+        });
+      } else {
+        renderMCQ(q.options);
+      }
+    }
+  }
+
+  function renderMCQ(options) {
+    const area = document.getElementById('interactive-area');
+    const grid = document.createElement('div');
+    grid.className = 'mcq-grid';
+    options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'mcq-btn';
+      btn.innerText = opt;
+      btn.onclick = () => checkMCQ(idx);
+      grid.appendChild(btn);
+    });
+    area.appendChild(grid);
+  }
+
+  // --- 驗證邏輯 ---
+  function checkLowS1(choice) {
+    if (answeredCurrent) return;
+    const q = curriculum.low.questions[1][qIdx];
+    const fb = document.getElementById('feedback');
+    if (choice === q.isReasonable) {
+      answeredCurrent = true;
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = `✅ 答對了！${q.explain}`;
+      triggerChest();
+    } else {
+      fb.className = 'feedback-box wrong';
+      fb.innerHTML = `❌ 再想一想喔！${q.explain}<br><small>（請重新點擊正確的選項過關！）</small>`;
+    }
+  }
+
+  function checkMCQ(idx) {
+    if (answeredCurrent) return;
+    const q = curriculum[currentGroup].questions[currentStage][qIdx];
+    const fb = document.getElementById('feedback');
+    if (idx === q.correctIdx) {
+      answeredCurrent = true;
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = `✅ 太棒了！${q.explain}`;
+      triggerChest();
+    } else {
+      fb.className = 'feedback-box wrong';
+      fb.innerHTML = `❌ 差一點點！提示：${q.tag}<br><small>（可以點右上角「📖 隨身文法小抄」確認後再選一次！）</small>`;
+    }
+  }
+
+  function checkHighS1() {
+    if (answeredCurrent) return;
+    const q = curriculum.high.questions[1][qIdx];
+    const drop = document.getElementById('h1-drop');
+    const userWords = Array.from(drop.children).map(c => c.innerText);
+    const fb = document.getElementById('feedback');
+
+    if (userWords.length === 0) {
+      fb.className = 'feedback-box wrong';
+      fb.innerText = "⚠️ 你還沒有放任何單字塊上去喔！";
+      return;
+    }
+
+    if (userWords.join(' ') === q.answer.join(' ')) {
+      answeredCurrent = true;
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = `🎉 拼圖完全正確：<b>${q.answer.join(' ')}</b>`;
+      triggerChest();
+    } else {
+      fb.className = 'feedback-box wrong';
+      if (userWords.length < q.answer.length) {
+        fb.innerHTML = `❌ 還有卡片沒放上去喔（需要全部 ${q.answer.length} 張）！<br>💡 ${q.orderHint}`;
+      } else {
+        let wrongPos = userWords.findIndex((w, i) => w !== q.answer[i]);
+        fb.innerHTML = `❌ 第 ${wrongPos + 1} 個位置放了 <b>「${userWords[wrongPos]}」</b>，位置不對喔！<br>💡 ${q.orderHint}`;
+      }
+    }
+  }
+
+  function checkHighS2() {
+    if (answeredCurrent) return;
+    const q = curriculum.high.questions[2][qIdx];
+    const input = document.getElementById('h2-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const fb = document.getElementById('feedback');
+
+    if (!input) {
+      fb.className = 'feedback-box wrong';
+      fb.innerText = "⚠️ 請先輸入答案再送出喔！";
+      return;
+    }
+
+    if (q.accept.includes(input)) {
+      answeredCurrent = true;
+      fb.className = 'feedback-box correct';
+      fb.innerHTML = `🎉 完全正確！完整句子為：<b>${q.sentence.replace('____________', q.accept[0])}</b>`;
+      triggerChest();
+    } else {
+      fb.className = 'feedback-box wrong';
+      fb.innerHTML = `❌ 拼字或時態還差一點點！<br>💡 提示：${q.hint}`;
+    }
+  }
+
+  // --- 開寶箱抽獎系統 ---
+  let chestOpened = false;
+  const prizes = [
+    { icon: "💰", text: "獲得 +100 金幣！", calc: g => g + 100 },
+    { icon: "💎", text: "超級大獎！獲得 +250 金幣！", calc: g => g + 250 },
+    { icon: "🚀", text: "幸運翻倍！目前金幣 × 2！", calc: g => (g === 0 ? 150 : g * 2) },
+    { icon: "🪙", text: "獲得 +50 金幣！", calc: g => g + 50 },
+    { icon: "👑", text: "寶藏王！獲得 +300 金幣！", calc: g => g + 300 }
+  ];
+
+  function triggerChest() {
+    chestOpened = false;
+    document.getElementById('chest-result').innerText = "";
+    document.getElementById('close-chest-btn').style.display = "none";
+    const chests = document.querySelectorAll('.chest');
+    chests.forEach((c, i) => {
+      c.innerHTML = `🎁<div class="chest-label">${i + 1}號寶箱</div>`;
+      c.style.opacity = "1";
+    });
+    setTimeout(() => {
+      document.getElementById('chestModal').style.display = 'flex';
+    }, 650);
+  }
+
+  function openChest(chosenIdx) {
+    if (chestOpened) return;
+    chestOpened = true;
+    const reward = prizes[Math.floor(Math.random() * prizes.length)];
+    gold = reward.calc(gold);
+    document.getElementById('gold').innerText = gold;
+
+    const chests = document.querySelectorAll('.chest');
+    chests.forEach((c, i) => {
+      if (i === chosenIdx) {
+        c.innerHTML = `${reward.icon}<div class="chest-label">已開啟</div>`;
+      } else {
+        c.style.opacity = "0.45";
+      }
+    });
+
+    document.getElementById('chest-result').innerText = `🎊 ${reward.text}`;
+    document.getElementById('close-chest-btn').style.display = 'block';
+  }
+
+  function closeChest() {
+    document.getElementById('chestModal').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'block';
+  }
+
+  function nextQ() {
+    qIdx++;
+    renderQuestion();
+  }
+
+  // Init
+  switchGroup('low');
+</script>
+</body>
+</html>
